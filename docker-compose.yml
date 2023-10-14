@@ -1,0 +1,48 @@
+# version of docker compose
+version: '3'
+
+# containers that we want to run
+# basically services are like wrapper for container
+# this services contains  2 service which will run in two different containers.
+# Here both container will be automatically connected to each other they wont be isolated.
+
+services:
+
+  # service name
+  react-app:
+
+    # image: 'react'
+
+    # it means look in the current directory and look for docker file and build it.
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+    
+      # it means do not create reference for node_modules from local computer
+      # just create one folder for it always when build
+      - /app/node_modules
+
+      # for rest of the files create reference inside app directory in container.
+      # NOTE:: no space between
+      - .:/app
+
+    environment:
+      - DEBUG=true
+
+
+  tests:
+
+    volumes:
+      - /app/node_modules
+      - .:/app
+    
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+
+    command: ["yarn", "test"]

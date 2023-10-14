@@ -1,0 +1,12 @@
+sudo: required # ehen ever we are using docker we need super user level permission, this command gives it
+
+services:
+  - docker # travis ci will automatically install a copy of docker into our container
+
+
+before_install:
+  - docker build -t docker-react -f Dockerfile.dev . # to run test
+
+
+script: # command to run our test suit
+  - docker run docker-react yarn test -- --coverage

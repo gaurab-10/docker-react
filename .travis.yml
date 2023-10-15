@@ -10,3 +10,40 @@ before_install:
 
 script: # command to run our test suit
   - docker run docker-react yarn test -- --coverage
+
+
+deploy:
+  provider: elasticbeanstalk
+  region: "us-west-2" # depends on the region created.
+  app: "docker-react"
+  env: "docker-react-env"
+  # when travis tries to deploy our codebase it takes all the project directories from the github and keep it in the single zip file
+  # and then it is going to copy all them over a S3 bucket which is essentially a harddrive. and tells elasticbeanstalk to redeploy our application.
+  # So, here we are going to name the bucket where travis is going to keep all the zip files.
+  # but when we create a elastic beanstalk, this bucket name will be generated automatically for us,
+  # To search for it and get a name of bucket go in services and search for S3
+  bucket_name: "elasticbeanstalk-us-west-2-3043838383838"
+
+  # by default until deployment there is no bucket-path so default will be app name
+  bucket-path: "docker-react"
+
+  # now only thing remaining is tell to travis to do deployment when code is pushed to master branch (ie. file is updated in master branch )
+  on:
+    branch: master
+
+  # now we want to give the travis ci an acess to our aws account.
+  # ie. generate a set of api keys and give it to the travis ci.
+  # go to aws console find services and search for IAM.
+  # - Click on Users Section
+  # - Add user with username like docker-react-travis and give programatic access.
+  # - in set permission:: click on attach existing policies directly, search for beanstalk in filter policies
+  # -select one with provide full access to aws elastic beanstalk one.
+
+  # since our secret keys are important we donot want to store it here
+  # we can store it on the env varialbe by going to travis ci website. or keep in .env file.
+  # AWS_ACCESS_KEY: AKL23E5HT31
+  # AWS_SECRECT_KEY: 20932309230
+
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key:
+    secure: "$AWS_SECRECT_KEY"
